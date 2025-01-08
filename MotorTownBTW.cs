@@ -7,6 +7,7 @@ using WindowsGSM.Functions;
 using WindowsGSM.GameServer.Engine;
 using WindowsGSM.GameServer.Query;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace WindowsGSM.Plugins
 {
@@ -46,8 +47,8 @@ namespace WindowsGSM.Plugins
         public string Additional = "jeju_world?listen? -server -log -useperfthreads"; // Additional server start parameter
 
         // - API Settings
-        private string apiPassword = "supersecret";
-        private string apiPort = "27017";
+        private string apiPassword;
+        private string apiPort;
 
         // - Create a default cfg for the game server after installation
         public async void CreateServerCFG() { }
@@ -55,10 +56,19 @@ namespace WindowsGSM.Plugins
         private void LoadConfig()
         {
             // Read the DedicatedServerConfig.json file to get API settings
-            // Assuming we have a method ReadConfig to read the JSON file
-            var config = ReadConfig("DedicatedServerConfig.json");
+            var configFilePath = Path.Combine(ServerPath.GetServersServerFiles(_serverData.ServerID), "DedicatedServerConfig.json");
+            var configJson = File.ReadAllText(configFilePath);
+            dynamic config = JsonConvert.DeserializeObject(configJson);
+
+            // Update settings
             apiPassword = config.HostWebAPIServerPassword;
             apiPort = config.HostWebAPIServerPort ?? "8080";
+
+            // Update other settings based on JSON
+            // Example:
+            // var serverName = config.ServerName;
+            // var maxPlayers = config.MaxPlayers;
+            // (You can store these values as needed)
         }
 
         private async Task<string> GetApiResponse(string endpoint)
@@ -99,8 +109,7 @@ namespace WindowsGSM.Plugins
                 StartInfo =
                 {
                     FileName = "steamcmd.exe",
-                    Arguments = $"+login anonymous +force_install_dir {ServerPath.GetServersServerFiles(_serverData.ServerID)} +app_update {AppId} -beta test -betapassword motortow
-                    ndedi validate +exit",
+                    Arguments = $"+login anonymous +force_install_dir {ServerPath.GetServersServerFiles(_serverData.ServerID)} +app_update {AppId} -beta test -betapassword motortowndedi validate +exit",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
