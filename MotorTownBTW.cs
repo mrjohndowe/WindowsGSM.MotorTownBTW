@@ -46,8 +46,8 @@ namespace WindowsGSM.Plugins
         public string Additional = "jeju_world?listen? -server -log -useperfthreads"; // Additional server start parameter
 
         // - API Settings
-        private string apiPassword =supersecret;
-        private string apiPort =27017;
+        private string apiPassword = "supersecret";
+        private string apiPort = "27017";
 
         // - Create a default cfg for the game server after installation
         public async void CreateServerCFG() { }
@@ -90,6 +90,30 @@ namespace WindowsGSM.Plugins
         }
 
         // Add more methods for other API calls such as KickPlayer, BanPlayer, etc.
+
+        // - Install server function
+        public override async Task<Process> Install()
+        {
+            var steamCMD = new Process
+            {
+                StartInfo =
+                {
+                    FileName = "steamcmd.exe",
+                    Arguments = $"+login anonymous +force_install_dir {ServerPath.GetServersServerFiles(_serverData.ServerID)} +app_update {AppId} -beta test -betapassword motortow
+                    ndedi validate +exit",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            steamCMD.OutputDataReceived += (sender, args) => base.ServerConsole += $"{args.Data}\n";
+            steamCMD.Start();
+            steamCMD.BeginOutputReadLine();
+            await steamCMD.WaitForExitAsync();
+
+            return steamCMD;
+        }
 
         // - Start server function, return its Process to WindowsGSM
         public async Task<Process> Start()
