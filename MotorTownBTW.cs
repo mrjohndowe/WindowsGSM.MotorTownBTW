@@ -1,166 +1,253 @@
 using System;
-using System.Text;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Net.Http;
-using WindowsGSM.Functions;
-using WindowsGSM.GameServer.Engine;
-using WindowsGSM.GameServer.Query;
-using Newtonsoft.Json;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using WindowsGSM.Functions;
+using WindowsGSM.GameServer.Query;
+using Newtonsoft.Json.Linq;
+using WindowsGSM.GameServer.Engine;
 
 namespace WindowsGSM.Plugins
 {
-    public class MotorTownBTW : SteamCMDAgent // SteamCMDAgent is used because MotorTownBTW relies on SteamCMD for installation and update process
+    public class MotorTownBTW
     {
         // - Plugin Details
         public Plugin Plugin = new Plugin
         {
-            name = "WindowsGSM.MotorTownBTW", // WindowsGSM.MotorTownBTW
+            name = "WindowsGSM.MotorTownBTW",
             author = "TheRealSarcasmO",
-            description = "🧩 WindowsGSM plugin for supporting MotorTown Behind The Wheel Dedicated Server (Coding inspired by battleduck)",
-            version = "0.1",
-            url = "https://github.com/TheRealSarcasmO/WindowsGSM.MotorTownBTW", // Github repository link (Best practice)
-            color = "#9eff99" // Color Hex
+            description = "WindowsGSM plugin for supporting MotorTownBTW Dedicated Server",
+            version = "2025.01.08.1725", // format "YYYY.MM.DD.HHMM"
+            url = "https://github.com/TheRealSarcasmO/WindowsGSM.MotorTownBTW",
+            color = "#34FFeb"
         };
 
         // - Standard Constructor and properties
-        public MotorTownBTW(ServerConfig serverData) : base(serverData) => base.serverData = _serverData = serverData;
-        private readonly ServerConfig _serverData; // Store server start metadata, such as start ip, port, start param, etc
-
-        // - Settings properties for SteamCMD installer
-        public override bool loginAnonymous => true; // MotorTownBTW requires to login steam account to install the server, so loginAnonymous = false
-        public override string AppId => "2223650"; // Game server appId, MotorTownBTW is 2223650
+        public MotorTownBTW(ServerConfig serverData) => _serverConfig = serverData;
+        private readonly ServerConfig _serverConfig;
+        public string ErrorMessage, NoticeMessage;
 
         // - Game server Fixed variables
-        public override string StartPath => @"Binaries\Win64\MotorTownServer-Win64-Shipping.exe"; // Game server start path, for MotorTownBTW, it is MotorTownServer-Win64-Shipping.exe
-        public string FullName = "MotorTownBTW Dedicated Server"; // Game server FullName
-        public bool AllowsEmbedConsole = true;  // Does this server support output redirect? (hoping this is or becomes a thing)
-        public int PortIncrements = 2; // This tells WindowsGSM how many ports should skip after installation
-        public object QueryMethod = new UT3(); // Query method should be use on current server type. Accepted value: null or new A2S() or new FIVEM() or new UT3()
+        public string FullName = "MotorTownBTW Dedicated Server";
+        public bool AllowsEmbedConsole = true;
+        public int PortIncrements = 2;
+        public object QueryMethod = new UT3();
 
         // - Game server default values
-        public string Port = "27015"; // Default port
-        public string QueryPort = "27016"; // Default query port
-        public string Defaultmap = "jeju_world"; // Default map name
-        public string Maxplayers = "64"; // Default maxplayers
-        public string Additional = "jeju_world?listen? -server -log -useperfthreads"; // Additional server start parameter
+        public string Port = "27015";
+        public string QueryPort = "27016";
+        public string Defaultmap = "jeju_world";
+        public string Maxplayers = "200";
+        public string Additional = "jeju_world?listen? -server -log -useperfthreads";
 
-        // - API Settings
-        private string apiPassword;
-        private string apiPort;
+        // - SteamCMD install settings
+        public bool loginAnonymous = false;
+        public string AppId = "2223650";
 
         // - Create a default cfg for the game server after installation
-        public async void CreateServerCFG() { }
-
-        private void LoadConfig()
+        public async void CreateServerCFG()
         {
-            // Read the DedicatedServerConfig.json file to get API settings
-            var configFilePath = Path.Combine(ServerPath.GetServersServerFiles(_serverData.ServerID), "DedicatedServerConfig.json");
-            var configJson = File.ReadAllText(configFilePath);
-            dynamic config = JsonConvert.DeserializeObject(configJson);
+            string configFilePath = Functions.ServerPath.GetServersServerFiles(_serverConfig.ServerID, "DedicatedServerConfig.json");
+            string sampleConfigFilePath = Functions.ServerPath.GetServersServerFiles(_serverConfig.ServerID, "DedicatedServerConfig_Sample.json");
 
-            // Update settings
-            apiPassword = config.HostWebAPIServerPassword;
-            apiPort = config.HostWebAPIServerPort ?? "8080";
-
-            // Update other settings based on JSON
-            // Example:
-            // var serverName = config.ServerName;
-            // var maxPlayers = config.MaxPlayers;
-            // (You can store these values as needed)
-        }
-
-        private async Task<string> GetApiResponse(string endpoint)
-        {
-            string url = $"http://localhost:{apiPort}/{endpoint}?password={apiPassword}";
-
-            using (HttpClient client = new HttpClient())
+            if (File.Exists(sampleConfigFilePath))
             {
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsStringAsync();
-            }
-        }
+                var sampleConfig = JObject.Parse(File.ReadAllText(sampleConfigFilePath));
 
-        public async Task<int> GetPlayerCountAsync()
-        {
-            LoadConfig();
-            string responseBody = await GetApiResponse("player/count");
-
-            dynamic data = JsonConvert.DeserializeObject(responseBody);
-            if (data.succeeded)
-            {
-                return data.data.num_players;
-            }
-            else
-            {
-                throw new Exception(data.message);
-            }
-        }
-
-        // Add more methods for other API calls such as KickPlayer, BanPlayer, etc.
-
-        // - Install server function
-        public override async Task<Process> Install()
-        {
-            var steamCMD = new Process
-            {
-                StartInfo =
+                if (!File.Exists(configFilePath))
                 {
-                    FileName = "steamcmd.exe",
-                    Arguments = $"+login anonymous +force_install_dir {ServerPath.GetServersServerFiles(_serverData.ServerID)} +app_update {AppId} -beta test -betapassword motortowndedi validate +exit",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
+                    File.WriteAllText(configFilePath, sampleConfig.ToString());
                 }
-            };
+                else
+                {
+                    var currentConfig = JObject.Parse(File.ReadAllText(configFilePath));
 
-            steamCMD.OutputDataReceived += (sender, args) => base.ServerConsole += $"{args.Data}\n";
-            steamCMD.Start();
-            steamCMD.BeginOutputReadLine();
-            await steamCMD.WaitForExitAsync();
+                    foreach (var property in sampleConfig.Properties())
+                    {
+                        if (!currentConfig.ContainsKey(property.Name))
+                        {
+                            currentConfig.Add(property.Name, property.Value);
+                        }
+                    }
 
-            return steamCMD;
+                    File.WriteAllText(configFilePath, currentConfig.ToString());
+                }
+            }
         }
 
         // - Start server function, return its Process to WindowsGSM
         public async Task<Process> Start()
         {
-            // Prepare start parameter
-            var param = new StringBuilder();
-            param.Append(string.IsNullOrWhiteSpace(_serverData.ServerPort) ? string.Empty : $" -port={_serverData.ServerPort}");
-            param.Append(string.IsNullOrWhiteSpace(_serverData.ServerName) ? string.Empty : $" -name=\"{_serverData.ServerName}\"");
-            param.Append(string.IsNullOrWhiteSpace(_serverData.ServerParam) ? string.Empty : $" {_serverData.ServerParam}");
+            string shipExePath = Functions.ServerPath.GetServersServerFiles(_serverConfig.ServerID, "MotorTown\\Binaries\\Win64\\MotorTownServer-Win64-Shipping.exe");
 
-            // Prepare Process
-            var p = new Process
+            if (string.IsNullOrWhiteSpace(shipExePath) || !File.Exists(shipExePath))
+            {
+                ErrorMessage = $"{Path.GetFileName(shipExePath)} not found ({shipExePath})";
+                return null;
+            }
+
+            string param = string.IsNullOrWhiteSpace(_serverConfig.ServerMap) ? string.Empty : _serverConfig.ServerMap;
+            param += "?listen";
+            param += string.IsNullOrWhiteSpace(_serverConfig.ServerName) ? string.Empty : $"?SessionName=\"{_serverConfig.ServerName}\"";
+            param += string.IsNullOrWhiteSpace(_serverConfig.ServerIP) ? string.Empty : $"?MultiHome={_serverConfig.ServerIP}";
+            param += string.IsNullOrWhiteSpace(_serverConfig.ServerPort) ? string.Empty : $"?Port={_serverConfig.ServerPort}";
+            param += string.IsNullOrWhiteSpace(_serverConfig.ServerMaxPlayer) ? string.Empty : $"?MaxPlayers={_serverConfig.ServerMaxPlayer}";
+            param += string.IsNullOrWhiteSpace(_serverConfig.ServerQueryPort) ? string.Empty : $"?QueryPort={_serverConfig.ServerQueryPort}";
+            param += $"{_serverConfig.ServerParam} -server -log";
+
+            Process p = new Process
             {
                 StartInfo =
                 {
+                    FileName = shipExePath,
+                    Arguments = param,
                     WindowStyle = ProcessWindowStyle.Minimized,
+                    UseShellExecute = false
+                },
+                EnableRaisingEvents = true
+            };
+            p.Start();
+
+            return p;
+        }
+
+        // - Stop server function
+        public async Task Stop(Process p)
+        {
+            await Task.Run(() =>
+            {
+                p.Kill();
+            });
+        }
+
+        // - Install server function
+        public async Task<Process> Install()
+        {
+            // Ensure that the ServerID and paths are not null or empty
+            if (string.IsNullOrWhiteSpace(_serverConfig.ServerID))
+            {
+                ErrorMessage = "ServerID is null or empty";
+                return null;
+            }
+
+            // Manually create the necessary directory structure
+            string serversServerFilesPath = Functions.ServerPath.GetServersServerFiles(_serverConfig.ServerID);
+            Console.WriteLine($"serversServerFilesPath: {serversServerFilesPath}"); // Debug statement
+            if (string.IsNullOrWhiteSpace(serversServerFilesPath))
+            {
+                ErrorMessage = "serversServerFilesPath is null or empty";
+                return null;
+            }
+
+            string steamAppsPath = Path.Combine(serversServerFilesPath, "steamapps");
+            Console.WriteLine($"steamAppsPath: {steamAppsPath}"); // Debug statement
+            if (string.IsNullOrWhiteSpace(steamAppsPath))
+            {
+                ErrorMessage = "steamAppsPath is null or empty";
+                return null;
+            }
+
+            Directory.CreateDirectory(steamAppsPath);
+
+            string forceInstallDir = Functions.ServerPath.GetServersServerFiles(_serverConfig.ServerID);
+            Console.WriteLine($"forceInstallDir: {forceInstallDir}"); // Debug statement
+            string appId = AppId;  // Use the AppId from the class
+            Console.WriteLine($"appId: {appId}"); // Debug statement
+            string customParam = "-beta test -betapassword motortowndedi";
+
+            // Ensure paths are not null or empty
+            if (string.IsNullOrWhiteSpace(forceInstallDir) || string.IsNullOrWhiteSpace(appId))
+            {
+                ErrorMessage = "Install directory or AppId is null or empty";
+                return null;
+            }
+
+            // Construct the parameter string
+            string param = $"+force_install_dir \"{forceInstallDir}\" +login anonymous +app_update {appId} {customParam} validate +exit";
+            Console.WriteLine($"param: {param}"); // Debug statement
+
+            // Ensure steamcmd.exe is available
+            string steamCmdExe = Path.Combine(ServerPath.GetBin("steamcmd"), "steamcmd.exe");
+            Console.WriteLine($"steamCmdExe: {steamCmdExe}"); // Debug statement
+            if (string.IsNullOrWhiteSpace(steamCmdExe) || !File.Exists(steamCmdExe))
+            {
+                ErrorMessage = "steamcmd.exe not found";
+                return null;
+            }
+
+            // Start the SteamCMD process
+            Process process = new Process
+            {
+                StartInfo =
+                {
+                    FileName = steamCmdExe,
+                    Arguments = param,
+                    WorkingDirectory = Path.GetDirectoryName(steamCmdExe),
                     UseShellExecute = false,
-                    WorkingDirectory = ServerPath.GetServersServerFiles(_serverData.ServerID),
-                    FileName = ServerPath.GetServersServerFiles(_serverData.ServerID, StartPath),
-                    Arguments = param.ToString()
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
                 },
                 EnableRaisingEvents = true
             };
 
-            // Start Process
-            try
+            process.Start();
+
+            await Task.Run(() => process.WaitForExit());
+
+            if (process.ExitCode != 0)
             {
-                p.Start();
-                return p;
+                ErrorMessage = $"SteamCMD process exited with code {process.ExitCode}";
+                return null;
             }
-            catch (Exception e)
-            {
-                base.Error = e.Message;
-                return null; // return null if fail to start
-            }
+
+            return process;
         }
 
-        // - Stop server function
-        public async Task Stop(Process p) => await Task.Run(() => { p.Kill(); });
+        // - Update server function
+        public async Task<Process> Update(bool validate = false, string custom = null)
+        {
+            var steamCMDAgent = new WindowsGSM.GameServer.Engine.SteamCMDAgent(_serverConfig);
+            Process p = await steamCMDAgent.Update(validate, custom);
+            ErrorMessage = steamCMDAgent.Error;
+
+            return p;
+        }
+
+        // - Check if the installation is successful
+        public bool IsInstallValid()
+        {
+            var steamCMDAgent = new WindowsGSM.GameServer.Engine.SteamCMDAgent(_serverConfig);
+            return steamCMDAgent.IsInstallValid();
+        }
+
+        // - Check if the directory contains the necessary files for import
+        public bool IsImportValid(string path)
+        {
+            var steamCMDAgent = new WindowsGSM.GameServer.Engine.SteamCMDAgent(_serverConfig);
+            return steamCMDAgent.IsImportValid(path);
+        }
+
+        // - Get Local server version
+        public string GetLocalBuild()
+        {
+            var steamCMDAgent = new WindowsGSM.GameServer.Engine.SteamCMDAgent(_serverConfig);
+            return steamCMDAgent.GetLocalBuild();
+        }
+
+        // - Get Latest server version
+        public async Task<string> GetRemoteBuild()
+        {
+            var steamCMDAgent = new WindowsGSM.GameServer.Engine.SteamCMDAgent(_serverConfig);
+            return await steamCMDAgent.GetRemoteBuild();
+        }
+
+        // - Check installation validity
+        public bool CheckInstallationValidity()
+        {
+            var steamCMDAgent = new SteamCMDAgent(_serverConfig);
+            return steamCMDAgent.IsInstallValid();
+        }
     }
 }
