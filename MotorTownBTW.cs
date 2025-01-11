@@ -39,8 +39,7 @@ namespace WindowsGSM.Plugins
         public override bool loginAnonymous => false; // Click Login and add your login info to txt file keep this safe.
         public string AppId = "2223650";
         public string customParam = " -beta test -betapassword motortowndedi";
-        public string AppIdnParam = "${AppId} {custom}";
-
+        public string AppIdnParam = "${AppId} {customParam}";
 
         public async Task<Process> Install()
         {
@@ -61,24 +60,9 @@ namespace WindowsGSM.Plugins
         }
 
         public async Task<Process> Update(bool validate = true, string custom = null)
-            {
+        {
             if (string.IsNullOrEmpty(custom)) // Injecting updated argument for install
                 custom = customParam;
-
-            try
-            {
-                var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom, loginAnonymous: loginAnonymous);
-                logger.Info("MotorTownBTW server updated successfully.");
-                return p;
-            }
-            
-    catch (Exception ex)
-    {
-        logger.Error(ex, "Failed to update MotorTownBTW server.");
-        MessageBox.Show($"Error updating MotorTownBTW server: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return null;
-    }
-}
 
             try
             {
