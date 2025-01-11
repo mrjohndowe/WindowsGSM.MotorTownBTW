@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using WindowsGSM.Functions;
 using WindowsGSM.GameServer.Engine;
 using WindowsGSM.GameServer.Query;
-using Newtonsoft.Json.Linq;
+//using Newtonsoft.Json.Linq;
 
 namespace WindowsGSM.Plugins
 {
@@ -27,42 +27,48 @@ namespace WindowsGSM.Plugins
         private readonly ServerConfig _serverData;
         public string ErrorMessage, NoticeMessage;
 
-
-        // - Settings properties for SteamCMD installer
-        public override bool loginAnonymous => true;
-        public string AppId = "2223650";
-        string custom = "-beta test -betapassword motortowndedi";
-
-        // - Server STeam Install 
-        public async Task<Process> Install()
-        {
-            AppId = $"{AppId} ";
-            var steamCMD = new Installer.SteamCMD();
-            Process p = await steamCMD.Install(_serverData.ServerID, string.Empty, AppId, true, loginAnonymous);
-            Error = steamCMD.Error;
-            return p;
-        }
-
         // - Game server Fixed variables
-        public override string StartPath => "\\Binaries\\Win64\\MotorTownServer-Win64-Shipping.exe";
+        public override string StartPath => "\\steamapps\\common\\Motor Town Behind The Wheel - Dedicated Server\\MotorTown\\Binaries\\Win64\\MotorTownServer-Win64-Shipping.exe";
         public string FullName = "MotorTownBTW Dedicated Server";
         public bool AllowsEmbedConsole = true;
         public int PortIncrements = 3;
         public object QueryMethod = new A2S(); // Query method should be A2S for this game server
-
 
         // - Game server default values
         public string Port = "27015";
         public string QueryPort = "27016";
         public string Defaultmap = "jeju_world";
         public string Maxplayers = "200";
-        public string Additional = "jeju_world?listen? -server -log -useperfthreads";
+        public string Additional = "Jeju_World?listen? -server -log -useperfthreads";
 
         //web interface info TODO
         public string WebAPIPort = "8080";
 
+        // - Settings properties for SteamCMD installer
+        public override bool loginAnonymous => false; // Click Login and add your login info to txt file keep this safe.
+        public string AppId = "2223650";
 
+        // public string custom = "-beta test -betapassword motortowndedi";
+        //
+        //public string customParam = " -beta test -betapassword motortowndedi";
 
+        public async Task<Process> Install()
+        {
+            var steamCMD = new Installer.SteamCMD();
+            Process p = await steamCMD.Install(_serverData.ServerID, string.Empty, AppId);
+            Error = steamCMD.Error;
+
+            return p;
+        }
+
+        public async Task<Process> Update(bool validate = true, string custom = null)
+        {
+            if (custom == null)
+                custom = " -beta test -betapassword motortowndedi";
+            var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom);
+            Error = error;
+            return p;
+        }
 
         // - Create a default cfg for the game server after installation
         public async void CreateServerCFG()
@@ -75,16 +81,14 @@ namespace WindowsGSM.Plugins
         {
             return null;
         }
-
-
-        // - Stop server function
+        
         // - Stop server function
         public async Task Stop(Process p)
         {
             await Task.Run(() =>
             {
                 Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
-                Functions.ServerConsole.SendWaitToMainWindow("^c");
+                Functions.ServerConsole.SendWaitToMainWindow("^c");                 //Trying to grace-fully exit
                 p.WaitForExit(20000);
             });
         }
