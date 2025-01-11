@@ -15,7 +15,7 @@ namespace WindowsGSM.Plugins
             name = "WindowsGSM.MotorTownBTW",
             author = "TheRealSarcasmO",
             description = "WindowsGSM plugin for supporting MotorTownBTW Dedicated Server",
-            version = "2025.01.08.1725", // format "YYYY.MM.DD.HHMM"
+            version = "2025.01.11.1540", // format "YYYY.MM.DD.HHMM"
             url = "https://github.com/TheRealSarcasmO/WindowsGSM.MotorTownBTW",
             color = "#34FFeb"
         };
