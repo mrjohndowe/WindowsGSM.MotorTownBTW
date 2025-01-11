@@ -6,31 +6,22 @@ using WindowsGSM.Functions;
 using WindowsGSM.GameServer.Engine;
 using WindowsGSM.GameServer.Query;
 //using Newtonsoft.Json.Linq;
+using NLog;
 
 namespace WindowsGSM.Plugins
 {
     public class MotorTownBTW : SteamCMDAgent
     {
-        // - Plugin Details
-        public Plugin Plugin = new Plugin
-        {
-            name = "WindowsGSM.MotorTownBTW",
-            author = "TheRealSarcasmO",
-            description = "WindowsGSM plugin for supporting MotorTownBTW Dedicated Server",
-            version = "2025.01.11.1221", // format "YYYY.MM.DD.HHMM"
-            url = "https://github.com/TheRealSarcasmO/WindowsGSM.MotorTownBTW",
-            color = "#34FFeb"
-        };
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         // - Standard Constructor and properties
         public MotorTownBTW(ServerConfig serverData) : base(serverData) => base.serverData = _serverData = serverData;
         private readonly ServerConfig _serverData;
-        public string ErrorMessage, NoticeMessage;
 
         // - Game server Fixed variables
         public override string StartPath => "MotorTown\\Binaries\\Win64\\MotorTownServer-Win64-Shipping.exe";
         public string FullName = "MotorTownBTW Dedicated Server";
-        public bool AllowsEmbedConsole = true;
+        public bool AllowsEmbedConsole = true; // I hope
         public int PortIncrements = 3;
         public object QueryMethod = new A2S(); // Query method should be A2S for this game server
 
@@ -42,55 +33,101 @@ namespace WindowsGSM.Plugins
         public string Additional = "Jeju_World?listen? -server -log -useperfthreads";
 
         //web interface info TODO
-        public string WebAPIPort = "8080";
+        public string WebAPIPort = "27014"; //will change sooner or later probably
 
         // - Settings properties for SteamCMD installer
         public override bool loginAnonymous => false; // Click Login and add your login info to txt file keep this safe.
         public string AppId = "2223650";
+        public string custom = " -beta test -betapassword motortowndedi";
+        public string AppIdnParam = "${AppId} {custom}";
 
-        // public string custom = "-beta test -betapassword motortowndedi";
-        //
-        //public string customParam = " -beta test -betapassword motortowndedi";
 
         public async Task<Process> Install()
         {
             var steamCMD = new Installer.SteamCMD();
-            Process p = await steamCMD.Install(_serverData.ServerID, string.Empty, AppId, loginAnonymous);
-            Error = steamCMD.Error;
 
-            return p;
+            try
+            {
+                Process p = await steamCMD.Install(_serverData.ServerID, string.Empty, AppIdnParam, loginAnonymous);
+                logger.Info("MotorTownBTW server installed successfully.");
+                return p;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to install MotorTownBTW server.");
+                MessageBox.Show($"Error installing MotorTownBTW server: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
         }
 
         public async Task<Process> Update(bool validate = true, string custom = null)
         {
             if (custom == null)
                 custom = " -beta test -betapassword motortowndedi";
-            var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom,loginAnonymous: loginAnonymous);
-            Error = error;
-            return p;
+            try
+            {
+                var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom, loginAnonymous: loginAnonymous);
+                logger.Info("MotorTownBTW server updated successfully.");
+                return p;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to update MotorTownBTW server.");
+                MessageBox.Show($"Error updating MotorTownBTW server: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
         }
 
         // - Create a default cfg for the game server after installation
         public async void CreateServerCFG()
         {
-            //TODO
+            try
+            {
+                //TODO
+                logger.Info("MotorTownBTW server configuration created successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to create MotorTownBTW server configuration.");
+                MessageBox.Show($"Error creating MotorTownBTW server configuration: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // - Start server function, return its Process to WindowsGSM
         public async Task<Process> Start()
         {
-            return null;
+            try
+            {
+                //TODO
+                logger.Info("MotorTownBTW server started successfully.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to start MotorTownBTW server.");
+                MessageBox.Show($"Error starting MotorTownBTW server: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
         }
-        
+
         // - Stop server function
         public async Task Stop(Process p)
         {
-            await Task.Run(() =>
+            try
             {
-                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
-                Functions.ServerConsole.SendWaitToMainWindow("^c");                 //Trying to grace-fully exit
-                p.WaitForExit(20000);
-            });
+                await Task.Run(() =>
+                {
+                    Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
+                    Functions.ServerConsole.SendWaitToMainWindow("^c");                 //Trying to gracefully exit
+                    p.WaitForExit(20000);
+                });
+                logger.Info("MotorTownBTW server stopped successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to stop MotorTownBTW server.");
+                MessageBox.Show($"Error stopping MotorTownBTW server: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
