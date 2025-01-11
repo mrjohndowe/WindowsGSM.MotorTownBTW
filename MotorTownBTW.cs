@@ -65,7 +65,7 @@ namespace WindowsGSM.Plugins
         {
             if (custom == null)
                 custom = " -beta test -betapassword motortowndedi";
-            var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom,loginAnonymous);
+            var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom,loginAnonymous: loginAnonymous);
             Error = error;
             return p;
         }
