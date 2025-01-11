@@ -55,7 +55,7 @@ namespace WindowsGSM.Plugins
         public async Task<Process> Install()
         {
             var steamCMD = new Installer.SteamCMD();
-            Process p = await steamCMD.Install(_serverData.ServerID, string.Empty, AppIdnParam, loginAnonymous);
+            Process p = await steamCMD.Install(_serverData.ServerID, string.Empty, AppIdnParam, loginAnonymous);  // Thanks for reminding me Raziel7893
             Debug.WriteLine(steamCMD.Error);
 
             return p;
@@ -65,7 +65,7 @@ namespace WindowsGSM.Plugins
         {
             if (custom == null)
                 custom = " -beta test -betapassword motortowndedi";
-            var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom, loginAnonymous: loginAnonymous);
+            var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom, loginAnonymous: loginAnonymous);  // Thanks for reminding me Raziel7893
             Debug.WriteLine(error);
             return p;
         }
