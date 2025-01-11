@@ -48,27 +48,27 @@ namespace WindowsGSM.Plugins
 
         // - Settings properties for SteamCMD installer
         public override bool loginAnonymous => false; // Click Login and add your login info to txt file keep this safe.
-        public string AppId = "2223650";
-        public string customParam = " -beta test -betapassword motortowndedi";
-        public string AppIdnParam;
+        public string AppId = "2223650 -beta test -betapassword motortowndedi";
+     //   public string customParam = " -beta test -betapassword motortowndedi";
+     //   public string AppIdnParam;
 
-        public async Task<Process> Install()
-        {
-            var steamCMD = new Installer.SteamCMD();
-            Process p = await steamCMD.Install(_serverData.ServerID, string.Empty, AppIdnParam, true, loginAnonymous);  // Thanks for reminding me Raziel7893
-            Debug.WriteLine(steamCMD.Error);
+//        public async Task<Process> Install()
+ //       {
+  //          var steamCMD = new Installer.SteamCMD();
+   //         Process p = await steamCMD.Install(_serverData.ServerID, string.Empty, AppIdnParam, true, loginAnonymous);  // Thanks for reminding me Raziel7893
+    //        Debug.WriteLine(steamCMD.Error);
+//
+ //           return p;
+  //      }
 
-            return p;
-        }
-
-        public async Task<Process> Update(bool validate = true, string custom = null)
-        {
-            if (custom == null)
-                custom = " -beta test -betapassword motortowndedi";
-            var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom, loginAnonymous: loginAnonymous);  // Thanks for reminding me Raziel7893
-            Debug.WriteLine(error);
-            return p;
-        }
+//        public async Task<Process> Update(bool validate = true, string custom = null)
+  //      {
+    //        if (custom == null)
+      //          custom = " -beta test -betapassword motortowndedi";
+        //    var (p, error) = await Installer.SteamCMD.UpdateEx(_serverData.ServerID, AppId, validate, custom: custom, loginAnonymous: loginAnonymous);  // Thanks for reminding me Raziel7893
+          //  Debug.WriteLine(error);
+            //return p;
+        //}
 
         // - Create a default cfg for the game server after installation
         public async void CreateServerCFG()
