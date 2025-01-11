@@ -28,7 +28,7 @@ namespace WindowsGSM.Plugins
         public string ErrorMessage, NoticeMessage;
 
         // - Game server Fixed variables
-        public override string StartPath => "\\steamapps\\common\\Motor Town Behind The Wheel - Dedicated Server\\MotorTown\\Binaries\\Win64\\MotorTownServer-Win64-Shipping.exe";
+        public override string StartPath => "MotorTown\\Binaries\\Win64\\MotorTownServer-Win64-Shipping.exe";
         public string FullName = "MotorTownBTW Dedicated Server";
         public bool AllowsEmbedConsole = true;
         public int PortIncrements = 3;
