@@ -48,7 +48,7 @@ namespace WindowsGSM.Plugins
 
         // - Settings properties for SteamCMD installer
         public override bool loginAnonymous => false; // Click Login and add your login info to txt file keep this safe.
-        public string AppId = "2223650 -beta test -betapassword motortowndedi";
+        public override string AppId => "2223650 -beta test -betapassword motortowndedi";
      //   public string customParam = " -beta test -betapassword motortowndedi";
      //   public string AppIdnParam;
 
