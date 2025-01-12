@@ -149,18 +149,13 @@ namespace WindowsGSM.Plugins
         {
             await Task.Run(() =>
             {
-                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
-                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
-                Functions.ServerConsole.SendWaitToMainWindow("^c");                 //Trying to grace-fully exit
-                 
-                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
-                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
+                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle); // Gracefull?
                 Functions.ServerConsole.SendWaitToMainWindow("^c");
-                 
-                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
-                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
                 Functions.ServerConsole.SendWaitToMainWindow("^c");
-                p.WaitForExit(20000);
+                Functions.ServerConsole.SendWaitToMainWindow("^c");
+                p.WaitForExit(2000);
+                if (!p.HasExited)
+                    p.Kill();
             });
         }
     }
