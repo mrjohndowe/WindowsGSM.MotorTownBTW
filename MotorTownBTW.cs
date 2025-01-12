@@ -17,7 +17,7 @@ namespace WindowsGSM.Plugins
             name = "WindowsGSM.MotorTownBTW",
             author = "TheRealSarcasmO",
             description = "WindowsGSM plugin for supporting MotorTownBTW Dedicated Server",
-            version = "2025.01.11.1919-alpha", // format "YYYY.MM.DD.HHMM"
+            version = "2025.01.11.1625", // format "YYYY.MM.DD.HHMM"
             url = "https://github.com/TheRealSarcasmO/WindowsGSM.MotorTownBTW",
             color = "#34FFeb"
         };
@@ -150,10 +150,15 @@ namespace WindowsGSM.Plugins
             await Task.Run(() =>
             {
                 Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
+                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
                 Functions.ServerConsole.SendWaitToMainWindow("^c");                 //Trying to grace-fully exit
-                p.WaitForExit(1000)
+                 
+                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
+                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
                 Functions.ServerConsole.SendWaitToMainWindow("^c");
-                p.WaitForExit(1000)
+                 
+                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
+                Functions.ServerConsole.SetMainWindow(p.MainWindowHandle);
                 Functions.ServerConsole.SendWaitToMainWindow("^c");
                 p.WaitForExit(20000);
             });
