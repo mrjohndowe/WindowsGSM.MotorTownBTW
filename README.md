@@ -57,7 +57,7 @@ No (At least for now)
 
 ### Should I copy SaveGames from/to User Folder?
 It's optional.
-Client uses 'User' Folder and Dedicated server uses its installed Folder
+The client uses 'User' Folder and Dedicated server uses its installed Folder
 You can copy from/to if you want.
 But only the first character's world is used by the Dedicated server
 
@@ -82,6 +82,9 @@ Saved\SaveGames
 (You can copy your Client Game Save files into this folder from '%appdata%..\Local\MotorTown\Saved\SaveGames')
 ```
 Since you are using this plugin you don't have to worry about most of that since you launch from here.
+
+## SO you need to contact me?
+### https://discord.gg/rrsQEHUpX2
 
 # License
 //TODO - This project is licensed under the MIT License - see the <a href="https://github.com/TheRealSarcasmO/WindowsGSM.MotorTownBTW/blob/main/LICENSE">LICENSE.md</a> file for details
