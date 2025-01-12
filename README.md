@@ -1,5 +1,12 @@
 # WindowsGSM.MotorTownBTW
-🧩 WindowsGSM plugin that provides MotorTownh Behind The Wheel Dedicated server support!
+🧩 WindowsGSM plugin that provides MotorTown Behind The Wheel Dedicated server support!
+
+- [x] Alpha
+- [x] ReadMe
+- [x] Icons
+- [ ] Implement Web Interface for Rest API
+- [ ] Beta
+- [ ] ?
 
 # WindowsGSM Installation: 
 1. Download  WindowsGSM https://windowsgsm.com/ 
@@ -11,7 +18,9 @@
 2. Extract then Move **MotorTownBTW.cs** folder to **plugins** folder
 3. OR Press on the Puzzle Icon on the bottom left side, install this plugin by navigating to it and select the Zip File.
 4. Click **[RELOAD PLUGINS]** button or restart WindowsGSM
-5. Navigate "Servers" and Click "Install Game Server" and find "American Truck Simulator Dedicated Server [AmericanTruckSimulator.cs]
+5. Navigate "Servers" and Click "Install Game Server" and find "MotorTownBTW Dedicated Server [MotorTownBTW.cs]
+6. Click Set Account
+7. If you get a token during installation place the token in the box and click "Send Token"
 
 ### The Game
 🕹️ https://store.steampowered.com/app/1369670/Motor_Town_Behind_The_Wheel/
@@ -30,7 +39,7 @@
 
 ### NOTE
 - max_players this can't be more than 232ish I think 
-- When you Install/Start the server you need to copy 
+- When you Install/Start the server you need to copy DedicatedServerConfig_Sample.json.. see instructions below
 
 ## Set up
 1. Run the game, not the server, and exit
