@@ -39,11 +39,11 @@ namespace WindowsGSM.Plugins
         public object QueryMethod = new A2S(); // Query method should be A2S for this game server
 
         //web interface info TODO
-        public string WebAPIPort = "27014";
+        public string WebAPIPort = "27016";
 
         // - Game server default values
-        public string Port = "27015";
-        public string QueryPort = "27016";
+        public string Port = "7777"; //Not sure if this is even change able.
+        public string QueryPort = "27015";
         public string Defaultmap = "Jeju_world";
         public string Maxplayers = "200";
         public string Additional = "-log -useperfthreads";
