@@ -180,10 +180,14 @@ namespace WindowsGSM.Plugins
             var password = configs.Value<string>("HostWebAPIServerPassword");
 
             HttpClient httpClient = new HttpClient() { BaseAddress = new Uri($"http://localhost:{WebAPIPort}/") };
-            int countDown = 30;
+            int countDown = 60;
+            await httpClient.PostAsync($"/chat?password={password}&message=Server restarting in ${countDown} seconds", null);
             while (countDown > 0)
             {
-                await httpClient.PostAsync($"/chat?password={password}&message={countDown}", null);
+                if (countDown == 15)
+                {
+                    await httpClient.PostAsync($"/chat?password={password}&message=Server restarting in ${countDown} seconds", null);
+                }
                 await Task.Delay(1000);
                 countDown--;
             }
