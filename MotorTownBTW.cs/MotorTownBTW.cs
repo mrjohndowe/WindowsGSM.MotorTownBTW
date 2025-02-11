@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -27,6 +27,7 @@ namespace WindowsGSM.Plugins
         // - Standard Constructor and properties
         public MotorTownBTW(ServerConfig serverData) : base(serverData) => base.serverData = _serverData = serverData;
         private readonly ServerConfig _serverData;
+
 
         // {
         // AppIdnParam = $"{AppId} {customParam}";
@@ -65,16 +66,7 @@ namespace WindowsGSM.Plugins
             UpdateConfig();
         }
 
-        private void UpdateConfig()
-        {
 
-            var configs = GetServerConfigs();
-            configs["ServerName"] = _serverData.ServerName;
-            configs["MaxPlayers"] = Int32.Parse(_serverData.ServerMaxPlayer);
-            SaveConfigFile(configs);
-        }
-
-        // - Start server function, return its Process to WindowsGSM
         // - Start server function, return its Process to WindowsGSM
         public async Task<Process> Start()
         {
@@ -146,15 +138,19 @@ namespace WindowsGSM.Plugins
         // - Stop server function
         public async Task Stop(Process p)
         {
-            try
+            var exePath = p.MainModule.FileName;
+            var configPath = exePath.Replace(StartPath, "");
+            var configs = GetServerConfigs(Path.Combine(configPath, "DedicatedServerConfig.json"));
+            var enabled = (bool)configs["bEnableHostWebAPIServer"];
+            var port = (int)configs["HostWebAPIServerPort"];
+            var password = (string)configs["HostWebAPIServerPassword"];
+
+            if (enabled)
             {
-                await ShutDownCountDown();
+                await ShutDownCountDown(port, password);
             }
-            catch
-            {
-                //ignore
-            }
-            await Task.Run(() =>
+
+            await Task.Run(async () =>
             {
                 Functions.ServerConsole.SetMainWindow(p.MainWindowHandle); // Gracefull?
                 Functions.ServerConsole.SendWaitToMainWindow("^c");
@@ -168,36 +164,14 @@ namespace WindowsGSM.Plugins
 
         private string GetConfigPath()
         {
-            return ServerPath.GetServersServerFiles(_serverData.ServerID, "DedicatedServerConfig.json");
+            return Functions.ServerPath.GetServersServerFiles(_serverData.ServerID, "DedicatedServerConfig.json");
         }
 
-        private async Task ShutDownCountDown()
+        private JObject GetServerConfigs(string configPath = null)
         {
-            var configs = GetServerConfigs();
-            if (configs.Value<bool>("bEnableHostWebAPIServer") == false) return;
+            if (configPath == null)
+                configPath = GetConfigPath();
 
-            var port = configs.Value<int>("HostWebAPIServerPort");
-            var password = configs.Value<string>("HostWebAPIServerPassword");
-
-            HttpClient httpClient = new HttpClient() { BaseAddress = new Uri($"http://localhost:{WebAPIPort}/") };
-            int countDown = 60;
-            await httpClient.PostAsync($"/chat?password={password}&message=Server restarting in ${countDown} seconds", null);
-            while (countDown > 0)
-            {
-                if (countDown == 15)
-                {
-                    await httpClient.PostAsync($"/chat?password={password}&message=Server restarting in ${countDown} seconds", null);
-                }
-                await Task.Delay(1000);
-                countDown--;
-            }
-
-            return;
-        }
-
-        private JObject GetServerConfigs()
-        {
-            string configPath = GetConfigPath();
             var json = File.ReadAllText(configPath);
             var configs = JObject.Parse(json);
             return configs;
@@ -206,6 +180,49 @@ namespace WindowsGSM.Plugins
         private void SaveConfigFile(JObject config)
         {
             File.WriteAllText(GetConfigPath(), config.ToString());
+        }
+
+        private JObject UpdateConfig()
+        {
+
+            var configs = GetServerConfigs();
+            configs["ServerName"] = _serverData.ServerName;
+            configs["MaxPlayers"] = Int32.Parse(_serverData.ServerMaxPlayer);
+            SaveConfigFile(configs);
+            return configs;
+        }
+
+        private async Task ShutDownCountDown(int port, string password)
+        {
+            int countDown = 60;
+            ServerSendMessage(port, password, $"Server restarting in {countDown} seconds");
+
+            while (countDown > 0)
+            {
+                if (countDown == 30 && countDown <= 10)
+                {
+                    ServerSendMessage(port, password, $"Server restarting in {countDown} seconds");
+                }
+                countDown--;
+                await Task.Delay(1000);
+            }
+        }
+
+        private void ServerSendMessage(int port, string password, string message)
+        {
+            try
+            {
+                using (WebClient webClient = new WebClient())
+                {
+                    webClient.Headers[HttpRequestHeader.ContentType] = "application/json";
+                    string remoteUrl = $"http://localhost:{port}/chat?password={password}&message={message}";
+                    webClient.UploadString(remoteUrl, "POST", "{}");
+                }
+            }
+            catch
+            {
+                //ignore
+            }
         }
     }
 }
