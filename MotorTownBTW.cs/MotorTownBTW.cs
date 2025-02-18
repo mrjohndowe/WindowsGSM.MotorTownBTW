@@ -42,7 +42,7 @@ namespace WindowsGSM.Plugins
         public int PortIncrements = 3;
         public object QueryMethod = new A2S(); // Query method should be A2S for this game server
 
-        //web interface info TODO
+        //web interface info TODO Still looking into using the REST API interface.
         public string WebAPIPort = "27016";
 
         // - Game server default values
