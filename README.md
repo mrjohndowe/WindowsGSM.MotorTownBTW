@@ -38,7 +38,7 @@
 4. Paste the Login Token on your WGSM GSLT text field.
 
 ### NOTE
-- max_players this can't be more than 232ish I think 
+- max_players this can't be more than 100ish I think <=was hardcoded from what I picked up in the community. Subject to change.
 - When you Install/Start the server you need to copy DedicatedServerConfig_Sample.json.. see instructions below
 
 ## Set up
