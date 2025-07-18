@@ -38,7 +38,7 @@
 4. Paste the Login Token on your WGSM GSLT text field.
 
 ### NOTE
-- max_players this can't be more than 100ish I think <=was hardcoded from what I picked up in the community. Subject to change.
+- max_players this can't be more than 100 ish I think <=was hardcoded from what I picked up in the community. Subject to change.
 - When you Install/Start the server you need to copy DedicatedServerConfig_Sample.json.. see instructions below
 
 ## Set up
@@ -92,8 +92,71 @@ Saved\SaveGames
 ```
 Since you are using this plugin you don't have to worry about most of that since you launch from here.
 
-## SO you need to contact me?
+===== Additional Steps if having issues ==== Extra Instructions Graciously Provided by <a href="https://github.com/Darkx352>Darkx352</a> ==========================
+🛠️ MotorTown Dedicated Server Setup – ReadMe Additional Steps
+
+If the console is black and doesn't show
+
+Setting breakpad minidump appid = 1369670
+
+📦 Step 1: Install SteamCMD
+
+Download and extract steamcmd.zip to your desired install location.
+
+Run steamcmd.exe once to initialize.
+
+Create a folder named MotorTown in the same directory.
+🚀 Step 2: Download MotorTown Server Files
+
+Launch SteamCMD.
+
+Enter the following commands:
+force_install_dir ./MotorTown/
+login <your_steam_username>
+password <your_password> ← (Console.Cursor.TurnOff So you wont see what your typing)
+
+If prompted for Steam Guard, enter the code sent to your email or phone.
+
+Then run:
+
+app_update 1007
+🔁 Step 3: Copy Required DLL Files
+
+Navigate to your Steam installation directory and copy the following files (DO NOT copy the steamapps folder):
+
+steamclient.dll
+
+steamclient64.dll
+
+tier0_s.dll
+
+tier0_s64.dll
+
+vstdlib_s.dll
+
+vstdlib_s64.dll
+📂 Step 4: Paste DLLs into Server Directory
+
+Go to your MotorTown server install path:
+
+/MotorTown/Binaries/Win64/
+
+Paste all copied .dll files into this folder.
+
+Restart your server.
+✅ Confirmation
+
+When launching the server console, you should see:
+
+Setting breakpad minidump AppID=136970
+
+
+
+## SO you still need to contact me?
 ### https://discord.gg/rrsQEHUpX2
 
 # License
 //TODO - This project is licensed under the MIT License - see the <a href="https://github.com/TheRealSarcasmO/WindowsGSM.MotorTownBTW/blob/main/LICENSE">LICENSE.md</a> file for details
+
+
+
