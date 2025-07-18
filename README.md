@@ -92,7 +92,7 @@ Saved\SaveGames
 ```
 Since you are using this plugin you don't have to worry about most of that since you launch from here.
 
-===== Additional Steps if having issues ==== Extra Instructions Graciously Provided by <a href="https://github.com/Darkx352>Darkx352</a> ==========================
+===== Additional Steps if having issues ==== Extra Instructions Graciously Provided by <a href="https://github.com/Darkx352">Darkx352</a> ==========================
 🛠️ MotorTown Dedicated Server Setup – ReadMe Additional Steps
 
 If the console is black and doesn't show
