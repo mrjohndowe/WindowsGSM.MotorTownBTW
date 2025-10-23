@@ -17,11 +17,11 @@ namespace WindowsGSM.Plugins
         public Plugin Plugin = new Plugin
         {
             name = "WindowsGSM.MotorTownBTW",
-            author = "TheRealSarcasmO",
+            author = "MrJohnDowe",
             description = "WindowsGSM plugin for supporting MotorTownBTW Dedicated Server",
-            version = "2025.01.11.2332-alpha", // format "YYYY.MM.DD.HHMM"
-            url = "https://github.com/TheRealSarcasmO/WindowsGSM.MotorTownBTW",
-            color = "#34FFeb"
+            version = "2025.23.10.1704-alpha", // format "YYYY.MM.DD.HHMM"
+            url = "https://github.com/mrjohndowe/WindowsGSM.MotorTownBTW.git",
+            color = "#053beeff"
         };
 
         // - Standard Constructor and properties
