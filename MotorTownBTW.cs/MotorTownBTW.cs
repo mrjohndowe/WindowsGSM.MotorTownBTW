@@ -54,7 +54,7 @@ namespace WindowsGSM.Plugins
 
         // - Settings properties for SteamCMD installer
         public override bool loginAnonymous => false; // Click Login and add your login info to txt file keep this safe.
-        public override string AppId => "2223650 -beta mod-test -betapassword motortowndedi";
+        public override string AppId => "2223650 -beta test -betapassword motortowndedi";
 
         // - Create a default cfg for the game server after installation
         public async void CreateServerCFG()
